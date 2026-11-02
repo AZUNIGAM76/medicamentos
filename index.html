@@ -112,7 +112,7 @@ dd.falta { color: var(--muted); font-size: 16px; }
 const DIAS_AVISO = 30;
 const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const ARCHIVO = 'inventario.json';
-let cifrado = null, inventario = [], cambio = '';
+let cifrado = null, inventario = [], cambio = '', posicionLista = 0;
 
 const $ = id => document.getElementById(id);
 const sinAcentos = t => t.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
@@ -246,6 +246,7 @@ function abrirFicha(m) {
     fila.append(dt, dd);
     return fila;
   }));
+  posicionLista = window.scrollY;
   history.pushState({ ficha: true }, '');   // para que el botón Atrás del celular regrese a la lista
   mostrar('vistaFicha');
   window.scrollTo(0, 0);
@@ -298,7 +299,11 @@ $('vistaEntrada').addEventListener('submit', async e => {
 $('busca').addEventListener('input', pintarLista);
 $('limpiar').addEventListener('click', () => { $('busca').value = ''; pintarLista(); $('busca').focus(); });
 $('volver').addEventListener('click', () => history.back());
-window.addEventListener('popstate', () => { if (inventario.length) mostrar('vistaLista'); });
+window.addEventListener('popstate', () => {
+  if (!inventario.length) return;
+  mostrar('vistaLista');
+  window.scrollTo(0, posicionLista);
+});
 document.addEventListener('visibilitychange', () => { if (!document.hidden && !$('vistaLista').hidden) pintarLista(); });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 iniciar();
